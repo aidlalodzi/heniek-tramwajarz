@@ -21,13 +21,13 @@ public class LineService {
     private final GeneralConfigurationProperties gcp;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public List<Line> fetchRoutes() {
+    public List<Line> getAllLines() {
         String json = mpkConfig.restClient().get()
                 .uri("/Home/GetRouteList")
                 .retrieve()
                 .body(String.class);
 
-        return validate(parseResponse(json));
+        return exclude(parseResponse(json));
     }
 
     private List<Line> parseResponse(String json) {
@@ -66,8 +66,8 @@ public class LineService {
         };
     }
 
-    private List<Line> validate(List<Line> lines) {
-        List<ExcludeEntry> activeExcludeEntries = gcp.getExclude().stream().filter(ExcludeEntry::isActive).toList();
+    private List<Line> exclude(List<Line> lines) {
+        List<ExcludeEntry> activeExcludeEntries = gcp.getExcludeLines().stream().filter(ExcludeEntry::isActive).toList();
         return lines.stream().filter(e -> {
             for (ExcludeEntry entry : activeExcludeEntries) {
                 if (e.lineIdentifier().matches(entry.getPattern())) {

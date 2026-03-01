@@ -10,6 +10,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "general-configuration")
 public class GeneralConfigurationProperties {
     private String rootUrl;
-    private List<ExcludeEntry> exclude = new ArrayList<>();
+    private List<ExcludeEntry> excludeLines = new ArrayList<>();
+    private List<ExcludeEntry> excludedRoutes = new ArrayList<>();
 }
 

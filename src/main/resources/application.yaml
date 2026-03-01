@@ -5,7 +5,7 @@ spring:
 
 general-configuration:
   root-url: "http://rozklady.lodz.pl"
-  exclude:
+  exclude-lines:
     - name: "Bez linii pracowniczych"
       pattern: "^P.*"
       active: true
@@ -21,4 +21,10 @@ general-configuration:
     - name: "Bez konkretnie wskazanych linii"
       pattern: "oP6|6\\."
       active: true
-
+  exclude-routes:
+    - name: "Bez zjazdów i wyjazdów z zajezdni Telefoniczna"
+      pattern: ""
+      active: true
+    - name: "Bez zjazdów i wyjazdów z zajezdni Chocianowice"
+      pattern: "^Z.*"
+      active: false
