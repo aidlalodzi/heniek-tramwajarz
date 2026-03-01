@@ -1,5 +1,5 @@
 ### Pobierz wszystkie linie
-GET http://rozklady.lodz.pl/Home/GetRouteList?ttId=0
+GET http://rozklady.lodz.pl/Home/GetRouteList
 
 ### Pobierz konkretną linię pod routeId=401491 (linia 1)
 GET http://rozklady.lodz.pl/Home/GetTracks?routeId=401491&ttId=0

@@ -1,3 +1,24 @@
 spring:
   application:
     name: HeniekTramwajarz
+
+
+general-configuration:
+  root-url: "http://rozklady.lodz.pl"
+  exclude:
+    - name: "Bez linii pracowniczych"
+      pattern: "^P.*"
+      active: true
+    - name: "Bez linii zastępczych"
+      pattern: "^Z.*"
+      active: false
+    - name: "Bez linii nocnych"
+      pattern: "^N.*"
+      active: false
+    - name: "Bez rezerw liniowych"
+      pattern: "^R.*"
+      active: true
+    - name: "Bez konkretnie wskazanych linii"
+      pattern: "oP6|6\\."
+      active: true
+
