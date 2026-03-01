@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Schematyczna mapa metra – D3.js</title>
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+        }
+
+        svg {
+            background: white;
+            border: 1px solid #ccc;
+        }
+
+        .metro-line {
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .station {
+            fill: white;
+            stroke: black;
+            stroke-width: 2;
+        }
+
+        .station.transfer {
+            stroke-width: 4;
+        }
+
+        .label {
+            font-size: 12px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    /* =========================
+       DANE
+       ========================= */
+
+    const stations = [
+        { id: "A", name: "Dworzec", x: 100, y: 200 },
+        { id: "B", name: "Centrum", x: 200, y: 200 },
+        { id: "C", name: "Ratusz",  x: 300, y: 200, transfer: true },
+        { id: "D", name: "Park",    x: 300, y: 120 },
+        { id: "E", name: "Muzeum",  x: 300, y: 300 },
+        { id: "F", name: "Stadion", x: 400, y: 200 }
+    ];
+
+    const lines = [
+        { from: "A", to: "B", color: "#e41a1c" },
+        { from: "B", to: "C", color: "#e41a1c" },
+        { from: "C", to: "D", color: "#e41a1c" },
+        { from: "C", to: "E", color: "#e41a1c" },
+
+        { from: "C", to: "F", color: "#377eb8" }
+    ];
+
+    /* =========================
+       SVG
+       ========================= */
+
+    const width = 600;
+    const height = 400;
+
+    const svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    /* =========================
+       MAPA STACJI
+       ========================= */
+
+    const stationById = {};
+    stations.forEach(s => stationById[s.id] = s);
+
+    /* =========================
+       LINIE METRA
+       ========================= */
+
+    svg.selectAll(".metro-line")
+        .data(lines)
+        .enter()
+        .append("line")
+        .attr("class", "metro-line")
+        .attr("x1", d => stationById[d.from].x)
+        .attr("y1", d => stationById[d.from].y)
+        .attr("x2", d => stationById[d.to].x)
+        .attr("y2", d => stationById[d.to].y)
+        .attr("stroke", d => d.color)
+        .attr("stroke-width", 8);
+
+    /* =========================
+       STACJE
+       ========================= */
+
+    svg.selectAll(".station")
+        .data(stations)
+        .enter()
+        .append("circle")
+        .attr("class", d => d.transfer ? "station transfer" : "station")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.transfer ? 9 : 7);
+
+    /* =========================
+       ETYKIETY
+       ========================= */
+
+    svg.selectAll(".label")
+        .data(stations)
+        .enter()
+        .append("text")
+        .attr("class", "label")
+        .attr("x", d => d.x + 12)
+        .attr("y", d => d.y + 4)
+        .text(d => d.name);
+
+    /* =========================
+       INTERAKCJE (opcjonalne)
+       ========================= */
+
+    svg.selectAll(".station")
+        .on("mouseover", function () {
+            d3.select(this).attr("r", 11);
+        })
+        .on("mouseout", function (event, d) {
+            d3.select(this).attr("r", d.transfer ? 9 : 7);
+        });
+
+</script>
+
+</body>
+</html>
