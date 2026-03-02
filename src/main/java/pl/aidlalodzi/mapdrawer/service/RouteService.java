@@ -3,6 +3,7 @@ package pl.aidlalodzi.mapdrawer.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.aidlalodzi.mapdrawer.config.MpkConfig;
+import pl.aidlalodzi.mapdrawer.config.properties.ExcludeEntry;
 import pl.aidlalodzi.mapdrawer.config.properties.GeneralConfigurationProperties;
 import pl.aidlalodzi.mapdrawer.model.v1.*;
 import tools.jackson.databind.ObjectMapper;
@@ -16,11 +17,12 @@ public class RouteService {
 
     private final MpkConfig mpkConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final GeneralConfigurationProperties gcp;
 
-    public ConvertedData getAllRoutesByLine(Line line) {
+    public FullRoutesInfoPerLine getAllRoutesByLine(Line line) {
 
-        Integer id = line.uniqueId();
-        System.out.printf("getAllRoutesByLine: id=%d, linia=%s%n", id, line.lineIdentifier());
+        int id = line.uniqueId();
+        //System.out.printf("getAllRoutesByLine: id=%d, linia=%s%n", id, line.lineIdentifier());
 
         try {
             String json = mpkConfig.restClient().get()
@@ -28,26 +30,26 @@ public class RouteService {
                     .retrieve()
                     .body(String.class);
 
-            return convert(json);
+            return convert(line, json);
         } catch (Exception e) {
             throw new RuntimeException("Nie udało się pobrać danych trasy o id " + id, e);
         }
     }
 
-    private ConvertedData convert(String rawJson) {
+    private FullRoutesInfoPerLine convert(Line line, String rawJson) {
 
         List<Object> root = objectMapper.readValue(rawJson, List.class);
 
         List<List<Object>> stopsRaw = (List<List<Object>>) root.get(0);
         List<List<Object>> segmentsRaw = (List<List<Object>>) root.get(1);
+        //String unidentifiedData = (String) root.get(2);
         List<List<Object>> variantsRaw = (List<List<Object>>) root.get(3);
 
         List<Stop> stops = parseStops(stopsRaw);
         List<Segment> segments = parseSegments(segmentsRaw);
         List<RouteVariant> variants = parseVariants(variantsRaw);
 
-        return new ConvertedData(stops, segments, variants);
-        //return new ConvertedData();
+        return new FullRoutesInfoPerLine(line, stops, segments, null, variants);
     }
 
     private List<Stop> parseStops(List<List<Object>> raw) {
@@ -109,6 +111,26 @@ public class RouteService {
             ));
         }
 
-        return result;
+        return result.stream().filter(this::excludeDepotArrival).filter(this::excludeDepotDeparture).toList();
+    }
+
+    private boolean excludeDepotArrival(RouteVariant variant) {
+        List<ExcludeEntry> excludeEntries = gcp.getExcludeRoutesDisplay().stream().filter(ExcludeEntry::isActive).toList();
+        for (ExcludeEntry entry : excludeEntries) {
+            if (variant.getRouteDisplay().matches(entry.getPattern())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean excludeDepotDeparture(RouteVariant variant) {
+        List<ExcludeEntry> excludeEntries = gcp.getExcludeDepotDeparture().stream().filter(ExcludeEntry::isActive).toList();
+        for (ExcludeEntry entry : excludeEntries) {
+            if (variant.getFrom().matches(entry.getPattern())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

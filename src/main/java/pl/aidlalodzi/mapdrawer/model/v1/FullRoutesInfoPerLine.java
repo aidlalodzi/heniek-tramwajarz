@@ -9,8 +9,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConvertedData {
+public class FullRoutesInfoPerLine {
+    private Line line;
     private List<Stop> stops;
     private List<Segment> segments;
+    private String unidentifiedData;
     private List<RouteVariant> variants;
 }

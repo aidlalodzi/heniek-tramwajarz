@@ -11,6 +11,7 @@ import java.util.List;
 public class GeneralConfigurationProperties {
     private String rootUrl;
     private List<ExcludeEntry> excludeLines = new ArrayList<>();
-    private List<ExcludeEntry> excludedRoutes = new ArrayList<>();
+    private List<ExcludeEntry> excludeRoutesDisplay = new ArrayList<>();
+    private List<ExcludeEntry> excludeDepotDeparture = new ArrayList<>();
 }
 

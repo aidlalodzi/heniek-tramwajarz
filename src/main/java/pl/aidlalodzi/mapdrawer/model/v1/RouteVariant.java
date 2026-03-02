@@ -13,7 +13,7 @@ public class RouteVariant {
     private Long id;
     private Integer direction;
     private Integer variant;
-    private String name;
+    private String routeDisplay;
     private String from;
     private String to;
     private List<Integer> stopIndexes;
