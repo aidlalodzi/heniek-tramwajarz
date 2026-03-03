@@ -1,46 +1,40 @@
-spring:
-  application:
-    name: HeniekTramwajarz
-
-
-general-configuration:
-  root-url: "http://rozklady.lodz.pl"
-  exclude-lines:
-    - name: "Bez linii pracowniczych"
-      pattern: "^P.*"
-      active: true
-    - name: "Bez linii zastępczych"
-      pattern: "^Z.*"
-      active: false
-    - name: "Bez linii nocnych"
-      pattern: "^N.*"
-      active: false
-    - name: "Bez rezerw liniowych"
-      pattern: "^R.*"
-      active: true
-    - name: "Bez konkretnie wskazanych linii"
-      pattern: "oP6|6\\."
-      active: true
-  exclude-routes-display:
-    - name: "Bez przejazdów technicznych"
-      pattern: "^PRZEJAZD TECHNICZNY$"
-      active: true
-    - name: "Bez autobusowych zjazdów do zajezdni"
-      pattern: ".*ZJAZD DO.*"
-      active: true
-    - name: "Bez tramwajowych zjazdów do zajezdni"
-      pattern: ".*DO ZAJEZDNI.*"
-      active: true
-  exclude-depot-departure:
-    - name: "Bez wyjazdów z zajezdni Telefoniczna"
-      pattern: "^Telefoniczna- ET-1$"
-      active: true
-    - name: "Bez wyjazdów z zajezdni Chocianowice"
-      pattern: "^Pabianicka- ET-2$"
-      active: true
-    - name: "Bez wyjazdów z zajezdni Limanowskiego"
-      pattern: "^Limanowskiego-zajezdnia LIMANOWSKIEGO$"
-      active: true
-    - name: "Bez wyjazdów z zajezdni Nowe Sady"
-      pattern: "^Nowe Sady-zajezdnia NOWE SADY$"
-      active: true
+rootUrl: "http://rozklady.lodz.pl"
+excludeLines:
+  - name: "Bez linii pracowniczych"
+    pattern: "^P.*"
+    active: true
+  - name: "Bez linii zastępczych"
+    pattern: "^Z.*"
+    active: false
+  - name: "Bez linii nocnych"
+    pattern: "^N.*"
+    active: false
+  - name: "Bez rezerw liniowych"
+    pattern: "^R.*"
+    active: true
+  - name: "Bez konkretnie wskazanych linii"
+    pattern: "oP6|6\\."
+    active: true
+excludeRoutesDisplay:
+  - name: "Bez przejazdów technicznych"
+    pattern: "^PRZEJAZD TECHNICZNY$"
+    active: false
+  - name: "Bez autobusowych zjazdów do zajezdni"
+    pattern: ".*ZJAZD DO.*"
+    active: false
+  - name: "Bez tramwajowych zjazdów do zajezdni"
+    pattern: ".*DO ZAJEZDNI.*"
+    active: false
+excludeDepotDeparture:
+  - name: "Bez wyjazdów z zajezdni Telefoniczna"
+    pattern: "^Telefoniczna- ET-1$"
+    active: false
+  - name: "Bez wyjazdów z zajezdni Chocianowice"
+    pattern: "^Pabianicka- ET-2$"
+    active: false
+  - name: "Bez wyjazdów z zajezdni Limanowskiego"
+    pattern: "^Limanowskiego-zajezdnia LIMANOWSKIEGO$"
+    active: false
+  - name: "Bez wyjazdów z zajezdni Nowe Sady"
+    pattern: "^Nowe Sady-zajezdnia NOWE SADY$"
+    active: false

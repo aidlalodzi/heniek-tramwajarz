@@ -1,4 +1,4 @@
-package pl.aidlalodzi.mapdrawer.config.properties;
+package pl.aidlalodzi.mapdrawer.config.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

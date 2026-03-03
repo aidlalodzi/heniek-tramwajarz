@@ -1,33 +1,38 @@
 package pl.aidlalodzi.mapdrawer.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import pl.aidlalodzi.mapdrawer.config.MpkConfig;
-import pl.aidlalodzi.mapdrawer.config.properties.ExcludeEntry;
-import pl.aidlalodzi.mapdrawer.config.properties.GeneralConfigurationProperties;
+import pl.aidlalodzi.mapdrawer.config.model.AppProperties;
+import pl.aidlalodzi.mapdrawer.config.model.ExcludeEntry;
 import pl.aidlalodzi.mapdrawer.model.v1.Line;
 import pl.aidlalodzi.mapdrawer.model.v1.VehicleType;
-import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @RequiredArgsConstructor
-@Service
 public class LineService {
 
-    private final MpkConfig mpkConfig;
-    private final GeneralConfigurationProperties gcp;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final HttpClient mpkClient;
+    private final AppProperties appProperties;
+    private final ObjectMapper mapper;
 
-    public List<Line> getAllLines() {
-        String json = mpkConfig.restClient().get()
-                .uri("/Home/GetRouteList")
-                .retrieve()
-                .body(String.class);
+    public List<Line> getAllLines() throws IOException, InterruptedException {
 
-        return exclude(parseResponse(json));
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(appProperties.getRootUrl() + "/Home/GetRouteList"))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = mpkClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return exclude(parseResponse(response.body()));
     }
 
     private List<Line> parseResponse(String json) {
@@ -67,7 +72,7 @@ public class LineService {
     }
 
     private List<Line> exclude(List<Line> lines) {
-        List<ExcludeEntry> activeExcludeEntries = gcp.getExcludeLines().stream().filter(ExcludeEntry::isActive).toList();
+        List<ExcludeEntry> activeExcludeEntries = appProperties.getExcludeLines().stream().filter(ExcludeEntry::isActive).toList();
         return lines.stream().filter(e -> {
             for (ExcludeEntry entry : activeExcludeEntries) {
                 if (e.lineIdentifier().matches(entry.getPattern())) {

@@ -1,23 +1,25 @@
 package pl.aidlalodzi.mapdrawer.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import pl.aidlalodzi.mapdrawer.config.MpkConfig;
-import pl.aidlalodzi.mapdrawer.config.properties.ExcludeEntry;
-import pl.aidlalodzi.mapdrawer.config.properties.GeneralConfigurationProperties;
+import pl.aidlalodzi.mapdrawer.config.model.AppProperties;
+import pl.aidlalodzi.mapdrawer.config.model.ExcludeEntry;
 import pl.aidlalodzi.mapdrawer.model.v1.*;
-import tools.jackson.databind.ObjectMapper;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Service
 public class RouteService {
 
-    private final MpkConfig mpkConfig;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final GeneralConfigurationProperties gcp;
+    private final HttpClient mpkClient;
+    private final AppProperties appProperties;
+    private final ObjectMapper objectMapper;
 
     public FullRoutesInfoPerLine getAllRoutesByLine(Line line) {
 
@@ -25,18 +27,21 @@ public class RouteService {
         //System.out.printf("getAllRoutesByLine: id=%d, linia=%s%n", id, line.lineIdentifier());
 
         try {
-            String json = mpkConfig.restClient().get()
-                    .uri("Home/GetTracks?routeId=" + id)
-                    .retrieve()
-                    .body(String.class);
 
-            return convert(line, json);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(appProperties.getRootUrl() + "/Home/GetTracks?routeId=" + id))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = mpkClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return convert(line, response.body());
         } catch (Exception e) {
             throw new RuntimeException("Nie udało się pobrać danych trasy o id " + id, e);
         }
     }
 
-    private FullRoutesInfoPerLine convert(Line line, String rawJson) {
+    private FullRoutesInfoPerLine convert(Line line, String rawJson) throws JsonProcessingException {
 
         List<Object> root = objectMapper.readValue(rawJson, List.class);
 
@@ -115,7 +120,7 @@ public class RouteService {
     }
 
     private boolean excludeDepotArrival(RouteVariant variant) {
-        List<ExcludeEntry> excludeEntries = gcp.getExcludeRoutesDisplay().stream().filter(ExcludeEntry::isActive).toList();
+        List<ExcludeEntry> excludeEntries = appProperties.getExcludeRoutesDisplay().stream().filter(ExcludeEntry::isActive).toList();
         for (ExcludeEntry entry : excludeEntries) {
             if (variant.getRouteDisplay().matches(entry.getPattern())) {
                 return false;
@@ -125,7 +130,7 @@ public class RouteService {
     }
 
     private boolean excludeDepotDeparture(RouteVariant variant) {
-        List<ExcludeEntry> excludeEntries = gcp.getExcludeDepotDeparture().stream().filter(ExcludeEntry::isActive).toList();
+        List<ExcludeEntry> excludeEntries = appProperties.getExcludeDepotDeparture().stream().filter(ExcludeEntry::isActive).toList();
         for (ExcludeEntry entry : excludeEntries) {
             if (variant.getFrom().matches(entry.getPattern())) {
                 return false;
